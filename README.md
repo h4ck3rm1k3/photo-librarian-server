@@ -15,3 +15,7 @@ For running in apache:
 # Facebook implementation
 
 The server when all the facebook requests are directed to it, handles more than just the photo handling, I have added in url handlers for all requests that occured while testing.
+
+
+See also my blog post on the basic ideas :
+http://rdfintrospector2.blogspot.de/2012/09/more-ideas-from-my-kosovo-trip.html
