@@ -1,0 +1,18 @@
+DocumentRoot /home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/public/
+
+<Directory "/home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/public">
+        AllowOverride None
+	Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+	Order allow,deny
+	Allow from all
+        AddHandler cgi-script .cgi
+</Directory>
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /dispatch.cgi/$1 [QSA,L]
+
+#LogLevel debug
+LogLevel info
+#ErrorLog /home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/apache/log/error.log
+#CustomLog /home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/apache/log/access.log combined

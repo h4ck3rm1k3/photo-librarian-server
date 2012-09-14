@@ -1,0 +1,16 @@
+listen 80
+<VirtualHost *:80>
+
+Include /home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/apache/config/facebook.base
+        	
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+    listen 443
+    <VirtualHost *:443>
+        Include /home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/apache/config/facebook.base
+        SSLEngine on
+        SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil-api-facebook.pem
+        SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil-api-facebook.key
+    </VirtualHost>
+</IfModule>
