@@ -530,12 +530,34 @@ post "/services/rest/" => sub {
     elsif ($method eq "flickr.auth.getToken") 
     {
         return '<?xml version="1.0" encoding="UTF-8"?>
-<rsp stat="ok"><auth>
+<rsp stat="ok">
+<auth>
   <token>976598454353455</token>
   <perms>write</perms>
   <user nsid="12037949754@N01" username="Bees" fullname="Cal H" />
-</auth></rsp>';
+</auth>
+</rsp>
+';
         
+    }
+    elsif ($method eq "flickr.photosets.getList") 
+    {
+        #http://www.flickr.com/services/api/flickr.photosets.getList.html
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+        <photosets page="1" pages="1" perpage="30" total="2" cancreate="1">
+  <photoset id="72157626216528324" primary="5504567858" secret="017804c585" server="5174" farm="6" photos="22" videos="0" count_views="137" count_comments="0" can_comment="1" date_create="1299514498" date_update="1300335009">
+    <title>Avis Blanche</title>
+    <description>My Grandmas Recipe File.</description>
+  </photoset>
+  <photoset id="72157624618609504" primary="4847770787" secret="6abd09a292" server="4153" farm="5" photos="43" videos="12" count_views="523" count_comments="1" can_comment="1" date_create="1280530593" date_update="1308091378">
+    <title>Mah Kittehs</title>
+    <description>Sixty and Niner. Born on the 3rd of May, 2010, or thereabouts. Came to my place on Thursday, July 29, 2010.</description>
+  </photoset>
+</photosets>
+</rsp>
+';
+
     }
     else
     {
@@ -549,6 +571,23 @@ post "/services/rest/" => sub {
 get "/services/auth/" => sub {
     warn Dumper(params);
     return "OK";
+    
+};
+
+post '/services/upload/' => sub {
+    my %body = params('body');
+    my $filename=$body{""};
+    my $all_uploads = request->uploads;
+    
+    foreach my $upload (values %{$all_uploads}) {
+        warn Dumper($upload);
+        $upload->copy_to('/tmp/images/');
+    }
+
+    return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <photoid>1234</photoid>
+</rsp>';
     
 };
 
