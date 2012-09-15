@@ -718,4 +718,73 @@ get "/images/*.*/details" => sub {
     return $html;
 };
 
+use MediaWiki::API;
+use YAML;
+
+get "/images/*.*/upload/commons" => sub {
+    my ($filename,$ext)=splat; 
+    #warn config->{appdir};
+    my $cfile=config->{appdir} . "/commons.yml";
+    my $cfg = YAML::LoadFile($cfile);
+
+    my $pfile= $filename . ".". $ext;
+    my $file=$datadir . $pfile;
+    return "error" if $filename =~ /\//;
+    return "error" if $filename =~ /\./;
+
+    my $mw = MediaWiki::API->new();
+    $mw->{config}->{api_url} = 'http://commons.wikimedia.org/w/api.php';
+    $mw->login( 
+        { 
+            lgname => $cfg->{'username'}, 
+            lgpassword => $cfg->{'password'} 
+        } 
+        )
+        || die $mw->{error}->{code} . ': ' . $mw->{error}->{details};
+
+
+
+
+ # upload a file to MediaWiki
+    try {
+        $mw->{config}->{upload_url} = 'http://commons.wikimedia.org/wiki/Special:Upload';
+
+        if (0) {
+            $mw->api( {
+            action => 'upload',
+            filename => $pfile,
+            comment => 'a test image',
+            file => [$file],
+                      } );
+        }
+        else
+        {
+            open FILE, $file or die $!;
+            binmode FILE;
+            my ($buffer, $data);
+            while ( read(FILE, $buffer, 65536) )  {
+                $data .= $buffer;
+            }
+            close(FILE);
+            
+            $mw->upload( 
+                { 
+                    title => "TestPhotoLib" . $pfile,
+                    summary => 'This is test file',
+                    data => $data 
+                } 
+                ) || warn $mw->{error}->{code} . ': ' . $mw->{error}->{details};
+        }
+    } catch {
+        warn "error:". @_;
+    }
+
+    my $html = "<html>";
+    $html .= "Test";
+    $html .= "</html>";
+    
+    return $html;
+};
+
+
 true;
