@@ -286,6 +286,223 @@ post '/services/upload' => sub {
     return "OK";
 };
 
+# now handle the google picasaweb
+
+
+# new version :
+
+# the user is sent to the site 
+
+# the brower goes to this site
+get '/o/oauth2/auth' => sub {
+    return "OK";
+#https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=1073902228337.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=http%3A%2F%2Fpicasaweb.google.com%2Fdata%2F+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=connect&access_type=offline&approval_prompt=force
+};
+
+# then they enter a token and go to this site
+post '/o/oauth2/token' => sub {
+    #return "OK";
+    # expects a json
+    return     '{ 
+ "id":"https://github.com/h4ck3rm1k3/photo-librarian-server",
+ "issued_at":"1278448384422",
+ "instance_url":"https://github.com/h4ck3rm1k3/photo-librarian-server",
+ "signature":"012345679abcdef012345679abcdef012345679abcdef",
+ "access_token":"012345679abcdef012345679abcdef012345679abcdef012345679abcdef"
+ }';
+
+};
+
+# then get the user info
+get "/oauth2/v1/userinfo" => sub {
+    return to_json (
+        {
+            "id"=> "00000000000000",
+            "email"=> "fred.example\@gmail.com",
+            "verified_email"=> true,
+            "name"=> "Fred Example",
+            "given_name"=> "Fred",
+            "family_name"=> "Example",
+            "picture"=> "https=>//lh5.googleusercontent.com/-2Sv-4bBMLLA/AAAAAAAAAAI/AAAAAAAAABo/bEG4kI2mG0I/photo.jpg",
+            "gender"=> "male",
+            "locale"=> "en-US"
+        });
+
+};
+
+#http://picasaweb.google.com/data/feed/api/user/default"
+
+get "/data/feed/api/user/default" => sub {
+
+#from https://developers.google.com/gdata/articles/using_cURL
+    return q!<?xml version='1.0' encoding='utf-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' 
+xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' 
+xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#' 
+xmlns:gml='http://www.opengis.net/gml' 
+xmlns:georss='http://www.georss.org/georss' 
+xmlns:photo='http://www.pheed.com/pheed/' 
+xmlns:media='http://search.yahoo.com/mrss/' 
+xmlns:batch='http://schemas.google.com/gdata/batch' 
+xmlns:gphoto='http://schemas.google.com/photos/2007'>
+  <id>http://picasaweb.google.com/data/feed/api/user/brad.gushue</id>
+  <updated>2007-09-13T21:47:07.337Z</updated>
+  <category scheme='http://schemas.google.com/g/2005#kind'
+  term='http://schemas.google.com/photos/2007#user' />
+  <title type='text'>brad.gushue</title>
+  <subtitle type='text'></subtitle>
+  <icon>
+  http://lh6.google.com/brad.gushue/AAAAj9zigp4/AAAAAAAAAAA/RiMAlXV4MFI/s64-c/brad.gushue</icon>
+  <link rel='http://schemas.google.com/g/2005#feed'
+  type='application/atom+xml'
+  href='http://picasaweb.google.com/data/feed/api/user/brad.gushue' />
+  <link rel='alternate' type='text/html'
+  href='http://picasaweb.google.com/brad.gushue' />
+  <link rel='self' type='application/atom+xml'
+  href='http://picasaweb.google.com/data/feed/api/user/brad.gushue?start-index=1&amp;max-results=1000' />
+  <author>
+    <name>Brad</name>
+    <uri>http://picasaweb.google.com/brad.gushue</uri>
+  </author>
+  <generator version='1.00' uri='http://picasaweb.google.com/'>
+  Picasaweb</generator>
+  <openSearch:totalResults>8</openSearch:totalResults>
+  <openSearch:startIndex>1</openSearch:startIndex>
+  <openSearch:itemsPerPage>1000</openSearch:itemsPerPage>
+  <gphoto:user>brad.gushue</gphoto:user>
+  <gphoto:nickname>Brad</gphoto:nickname>
+  <gphoto:thumbnail>
+  http://lh6.google.com/brad.gushue/AAAAj9zigp4/AAAAAAAAAAA/RiMAlXV4MFI/s64-c/brad.gushue</gphoto:thumbnail>
+  <entry>
+    <id>
+    http://picasaweb.google.com/data/entry/api/user/brad.gushue/albumid/9810315389720904593</id>
+    <published>2007-05-23T04:55:52.000Z</published>
+    <updated>2007-05-23T04:55:52.000Z</updated>
+    <category scheme='http://schemas.google.com/g/2005#kind'   term='http://schemas.google.com/photos/2007#album' />
+    <title type='text'>Trip To Italy</title>
+    <summary type='text'>This was the recent trip I took to
+    Italy.</summary>
+    <rights type='text'>public</rights>
+    <link rel='http://schemas.google.com/g/2005#feed'
+    type='application/atom+xml'
+    href='http://picasaweb.google.com/data/feed/api/user/brad.gushue/albumid/9810315389720904593' />
+    <link rel='alternate' type='text/html'
+    href='http://picasaweb.google.com/brad.gushue/TripToItalyV2' />
+    <link rel='self' type='application/atom+xml'
+    href='http://picasaweb.google.com/data/entry/api/user/brad.gushue/albumid/9810315389720904593' />
+    <link rel='edit' type='application/atom+xml'
+    href='http://picasaweb.google.com/data/entry/api/user/brad.gushue/albumid/9810315389720904593/123456' />
+    <author>
+      <name>Brad</name>
+      <uri>http://picasaweb.google.com/brad.gushue</uri>
+    </author>
+    <gphoto:id>9810315389720904593</gphoto:id>
+    <media:group>
+    </media:group>
+  </entry>
+</feed>!;
+
+};
+
+post "/data/feed/api/user/default" => sub {
+    # now we handle the new album...we return the same thing... 
+    return q!<?xml version='1.0' encoding='utf-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' 
+xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' 
+xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#' 
+xmlns:gml='http://www.opengis.net/gml' 
+xmlns:georss='http://www.georss.org/georss' 
+xmlns:photo='http://www.pheed.com/pheed/' 
+xmlns:media='http://search.yahoo.com/mrss/' 
+xmlns:batch='http://schemas.google.com/gdata/batch' 
+xmlns:gphoto='http://schemas.google.com/photos/2007'>
+  <id>http://picasaweb.google.com/data/feed/api/user/brad.gushue</id>
+  <updated>2007-09-13T21:47:07.337Z</updated>
+  <category scheme='http://schemas.google.com/g/2005#kind'
+  term='http://schemas.google.com/photos/2007#user' />
+  <title type='text'>brad.gushue</title>
+  <subtitle type='text'></subtitle>
+  <icon>
+  http://lh6.google.com/brad.gushue/AAAAj9zigp4/AAAAAAAAAAA/RiMAlXV4MFI/s64-c/brad.gushue</icon>
+  <link rel='http://schemas.google.com/g/2005#feed'
+  type='application/atom+xml'
+  href='http://picasaweb.google.com/data/feed/api/user/brad.gushue' />
+  <link rel='alternate' type='text/html'
+  href='http://picasaweb.google.com/brad.gushue' />
+  <link rel='self' type='application/atom+xml'
+  href='http://picasaweb.google.com/data/feed/api/user/brad.gushue?start-index=1&amp;max-results=1000' />
+  <author>
+    <name>Brad</name>
+    <uri>http://picasaweb.google.com/brad.gushue</uri>
+  </author>
+  <generator version='1.00' uri='http://picasaweb.google.com/'>
+  Picasaweb</generator>
+  <openSearch:totalResults>8</openSearch:totalResults>
+  <openSearch:startIndex>1</openSearch:startIndex>
+  <openSearch:itemsPerPage>1000</openSearch:itemsPerPage>
+  <gphoto:user>brad.gushue</gphoto:user>
+  <gphoto:nickname>Brad</gphoto:nickname>
+  <gphoto:thumbnail>
+  http://lh6.google.com/brad.gushue/AAAAj9zigp4/AAAAAAAAAAA/RiMAlXV4MFI/s64-c/brad.gushue</gphoto:thumbnail>
+  <entry>
+    <id>
+    http://picasaweb.google.com/data/entry/api/user/brad.gushue/albumid/9810315389720904593</id>
+    <published>2007-05-23T04:55:52.000Z</published>
+    <updated>2007-05-23T04:55:52.000Z</updated>
+    <category scheme='http://schemas.google.com/g/2005#kind'   term='http://schemas.google.com/photos/2007#album' />
+    <title type='text'>Trip To Italy</title>
+    <summary type='text'>This was the recent trip I took to
+    Italy.</summary>
+    <rights type='text'>public</rights>
+    <link rel='http://schemas.google.com/g/2005#feed'
+    type='application/atom+xml'
+    href='http://picasaweb.google.com/data/feed/api/user/brad.gushue/albumid/9810315389720904593' />
+    <link rel='alternate' type='text/html'
+    href='http://picasaweb.google.com/brad.gushue/TripToItalyV2' />
+    <link rel='self' type='application/atom+xml'
+    href='http://picasaweb.google.com/data/entry/api/user/brad.gushue/albumid/9810315389720904593' />
+    <link rel='edit' type='application/atom+xml'
+    href='http://picasaweb.google.com/data/entry/api/user/brad.gushue/albumid/9810315389720904593/123456' />
+    <author>
+      <name>Brad</name>
+      <uri>http://picasaweb.google.com/brad.gushue</uri>
+    </author>
+    <gphoto:id>9810315389720904593</gphoto:id>
+    <media:group>
+    </media:group>
+  </entry>
+</feed>!;
+
+};
+
+post "/data/feed/api/user/*/albumid/*" => sub {
+
+    warn Dumper(headers);
+
+    my %body = params('body');
+    my $filename=$body{""};
+    my $all_uploads = request->uploads;
+    
+    foreach my $upload (values %{$all_uploads}) {
+        warn Dumper($upload);
+        $upload->copy_to('/tmp/images/');
+    }
+    
+};
+
+
+## old version of picasa plugin 
+#this is the old version 
+#deprecated https://developers.google.com/accounts/docs/AuthForInstalledApps#Errors
+post '/accounts/ClientLogin' => sub {
+    return '
+SID=DQAAAGgA12347Zg8CTN
+LSID=DQAAAGsA12234lk8BBbG
+Auth=DQAAAGgAfdssdk3fA5N
+';
+};
+
+
 # google search 
 #http://www.google.com/search
 use WWW::Search::Google;

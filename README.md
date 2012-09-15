@@ -37,6 +37,12 @@ an xml object is expected.
 1. get '/services/rest'
 1. post '/services/upload'
 
+# picasaweb
+
+1. user login https://www.google.com/accounts/ClientLogin
+   POST /accounts/ClientLogin
+        
+
 See also my blog post on the basic ideas :
 http://rdfintrospector2.blogspot.de/2012/09/more-ideas-from-my-kosovo-trip.html
 
