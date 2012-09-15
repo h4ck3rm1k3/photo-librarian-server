@@ -3,6 +3,7 @@ use Dancer ':syntax';
 use Data::Dumper;
 
 our $VERSION = '0.1';
+our $datadir= "/tmp/images/";
 
 get '/' => sub {
     template 'index';
@@ -141,7 +142,7 @@ post '/restserver.php' => sub {
 
         foreach my $upload (values %{$all_uploads}) {
             warn Dumper($upload);
-            $upload->copy_to('/tmp/images/');
+            $upload->copy_to($datadir);
         }
 
 #{      'headers' => {
@@ -281,7 +282,7 @@ post '/services/upload' => sub {
     my $all_uploads = request->uploads;    
     foreach my $upload (values %{$all_uploads}) {
         warn Dumper($upload);
-        $upload->copy_to('/tmp/images/');
+        $upload->copy_to($datadir);
     }
     return "OK";
 };
@@ -485,7 +486,7 @@ post "/data/feed/api/user/*/albumid/*" => sub {
     
     foreach my $upload (values %{$all_uploads}) {
         warn Dumper($upload);
-        $upload->copy_to('/tmp/images/');
+        $upload->copy_to($datadir);
     }
     
 };
@@ -581,7 +582,7 @@ post '/services/upload/' => sub {
     
     foreach my $upload (values %{$all_uploads}) {
         warn Dumper($upload);
-        $upload->copy_to('/tmp/images/');
+        $upload->copy_to($datadir);
     }
 
     return '<?xml version="1.0" encoding="UTF-8"?>
@@ -599,6 +600,122 @@ post '/services/upload/' => sub {
 # 'frob' => ""
 
 
+## now lets process the stuff
 
+# 1. list the images
+get "/images" => sub {
+    # loop over /tmp/images
+    my @files=glob($datadir . "*.jpg");
+    my $html = "<html>";
+    foreach my $f (@files) {
+        
+        $html .= "<a href='/images/${f}/details'>${f}</a><p>";
+    }
+    $html .="</html>";
+    return $html;
+};
+
+
+use Image::EXIF;
+use Image::IPTCInfo;
+
+sub IPTC {
+    my $file=shift;
+    my $info = new Image::IPTCInfo($file);
+#    my $keywordsRef = $info->Keywords();
+#    my $suppCatsRef = $info->SupplementalCategories();
+#    my $contactsRef = $info->Contacts();
+#    my $html .= Dumper($keywordsRef);
+#    $html .= Dumper($suppCatsRef);
+#    $html .= Dumper($contactsRef);
+#    $html .=  $info->ExportXML ();
+    my $html .= "<ul>";    
+    # foreach my $key (keys %$extraRef)
+    # {
+    #     $html .= "\t<li>$key=" . $extraRef->{$key} . "</li>\n";
+    # }
+    
+    # dump our stuff
+    foreach my $key (keys %{$info->{_data}})
+    {
+        my $cleankey = $key;
+        $cleankey =~ s/ /_/g;
+        $cleankey =~ s/\//-/g;        
+        $html .= "\t<li>$cleankey:" . $info->{_data}->{$key} . "</li>\n";
+    }
+
+    if (defined ($info->Keywords()))
+    {
+        foreach my $keyword (@{$info->Keywords()})
+        {
+            $html .= "\t\t<li>KW:$keyword</li>\n";
+        }        
+    }
+    
+    if (defined ($info->SupplementalCategories()))
+    {
+        foreach my $category (@{$info->SupplementalCategories()})
+        {
+            $html .= "\t\t<li>supplemental_category:$category</li>\n";
+        }        
+    }
+    
+    if (defined ($info->Contacts()))
+    {
+        foreach my $contact (@{$info->Contacts()})
+        {
+            $html .= "<li>contact:$contact</li>\n";
+        }        
+    }
+
+    $html .= "</ul>";
+
+    return $html;
+}
+
+sub EXIF {
+    my $file=shift;
+    my $exif = new Image::EXIF;
+    $exif->file_name($file);
+
+    my $all_info = $exif->get_all_info(); # hash reference
+    my $html .= "<ul>";
+    foreach my $k (keys %{$all_info})
+    {
+        my $v= $all_info->{$k};
+        $html .= "<li>$k = <ul>";
+        foreach my $k2 (keys %{$v})
+        {
+            my $v2= $v->{$k2};
+            $html .= "<li>$k2 = $v2</li>";
+        }
+        $html .= "</ul></li>";
+    }
+    $html .= "</ul>";
+    return $html;
+
+}
+
+get "/images/*.*/details" => sub {
+    # loop over /tmp/images
+    my ($filename,$ext)=splat;    
+    my $file=$datadir . $filename . ".". $ext;
+    return "error" if $filename =~ /\//;
+    return "error" if $filename =~ /\./;
+    my $html = "<html>";
+
+
+    if (-f $file) {
+        $html .= "<a href='/images/${filename}.${ext}/details'>${file}</a><p>";
+        $html .= EXIF $file;
+        $html .= IPTC $file;
+    }
+    else
+    {
+        $html .= "error:${file}<p>";
+    }
+    
+    return $html;
+};
 
 true;
