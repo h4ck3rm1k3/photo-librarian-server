@@ -37,11 +37,19 @@ an xml object is expected.
 1. get '/services/rest'
 1. post '/services/upload'
 
-# picasaweb
-
+# picasaweb (broken)
+The current stable version uses the deprecated interface
 1. user login https://www.google.com/accounts/ClientLogin
    POST /accounts/ClientLogin
-        
+
+The new version uses the oauth2, 
+1. get /o/oauth2/auth browse to here and get a token
+2. POST /o/oauth2/token enter in app and it posts it here.
+3. GET /oauth2/v1/userinfo get the user info
+4. GET /data/feed/api/user/default get the albums
+5. POST /data/feed/api/user/default post the new album
+6. post "/data/feed/api/user/*/albumid/*" upload the data.
+        this fails here :https://github.com/h4ck3rm1k3/photo-librarian-server/issues/2
 
 See also my blog post on the basic ideas :
 http://rdfintrospector2.blogspot.de/2012/09/more-ideas-from-my-kosovo-trip.html
