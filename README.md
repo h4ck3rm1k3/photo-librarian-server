@@ -54,8 +54,21 @@ The new version uses the oauth2,
 1. post "/data/feed/api/user/*/albumid/*" upload the data.
 
         this fails here :https://github.com/h4ck3rm1k3/photo-librarian-server/issues/2
-        
+
+# flicker from digikam is working
+
+# list of file uploaded
+http://localhost/images/jzFINxQxn7.jpg/upload/commons
+
+#details about one file
+http://localhost/images/jzFINxQxn7.jpg/details
+
+# upload to commons is failing :
+http://localhost/images/jzFINxQxn7.jpg/upload/commons
+
 
 See also my blog post on the basic ideas :
 http://rdfintrospector2.blogspot.de/2012/09/more-ideas-from-my-kosovo-trip.html
+
+
 
