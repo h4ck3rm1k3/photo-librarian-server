@@ -37,11 +37,9 @@ get '/dialog/oauth' => sub {
 
 post '/restserver.php' => sub {
     warn "post handler";
-#    warn Dumper({param=>params});
-#    warn Dumper({query=>params('query')});
 
     my %body = params('body');
-    warn Dumper(\%body);
+#    warn Dumper(\%body);
     if ($body{"method"} eq "users.getLoggedInUser") {       
         my $token= params->{'access_token'};    #?access_token=this_is_a_faked_access_token
         warn "got the token $token";
@@ -146,18 +144,15 @@ post '/restserver.php' => sub {
             $upload->copy_to('/tmp/images/');
         }
 
-#        warn Dumper($all_uploads);
-# $VAR1 = {
-#           '' => bless( {
-#                          'headers' => {
-#                                         'Content-Type' => 'image/jpeg',
-#                                         'Content-Disposition' => 'form-data; filename=publishing-4.jpg'
-#                                       },
-#                          'filename' => 'publishing-4.jpg',
+#{      'headers' => {
+#                       'Content-Type' => 'image/jpeg',
+#                        'Content-Disposition' => 'form-data; filename=publishing-4.jpg'
+#                   },
+#                  'filename' => 'publishing-4.jpg',
 #                          'tempname' => '/tmp/Sq8Vg0mR18.jpg',
 #                          'size' => '81804'
 #                        }, 'Dancer::Request::Upload' )
-#         };
+# }
 
         return "<ok></ok>";
 
@@ -171,14 +166,12 @@ post '/restserver.php' => sub {
     
 };
 
-#/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fmixcloud&width=300&height=258&colorscheme=light&show_faces=true&border_color=%23ffffff&stream=false&font=lucida+grande&header=false&appId=261490827272763
-get '/plugins/like.php' => sub {
-    return "WTF";
-};
 
 get '/css/error.css' => sub {
     return "";
 };
+
+# other facebook api calls
 
 get '/method' => sub {
     return "";
@@ -205,6 +198,10 @@ get '/connect/xd_arbiter.php' => sub {
     return "";
 };
 
+#/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fmixcloud&width=300&height=258&colorscheme=light&show_faces=true&border_color=%23ffffff&stream=false&font=lucida+grande&header=false&appId=261490827272763
+get '/plugins/like.php' => sub {
+    return "WTF";
+};
 
 
 true;
