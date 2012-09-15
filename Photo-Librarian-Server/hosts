@@ -1,2 +1,6 @@
 # the following hosts are defined
-127.0.0.1 facebook.com api.facebook.com www.facebook.com api-video.facebook.com www.facebook.com www.facebook.de static.ak.facebook.com graph.facebook.com
+127.0.0.1 facebook.com api.facebook.com www.facebook.com api-video.facebook.com www.facebook.com ww
+w.facebook.de static.ak.facebook.com graph.facebook.com
+
+# for flickr
+127.0.0.1 api.flickr.com www.flickr.com

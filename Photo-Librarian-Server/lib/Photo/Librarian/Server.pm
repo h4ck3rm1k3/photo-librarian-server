@@ -204,4 +204,95 @@ get '/plugins/like.php' => sub {
 };
 
 
+
+### Flikr 
+# flicker step 1, request token
+#http://www.flickr.com/services/oauth/request_token?oauth_nonce=7dc8eb6a0cd7f4ef264c1dad97609e82&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_callback=oob&oauth_timestamp=1347700042&oauth_consumer_key=60dd96d4a2ad04888b09c9e18d82c26f&oauth_signature=xwoGsfqCirrqRsHdKS2dlG8%2FfIM%3D
+get '/services/oauth/request_token' => sub {
+    my $redirect_uri= params->{'redirect_uri'};
+    my %params=params;
+
+    # 'oauth_signature' => 'irsFmEIINb/bAdQvXEHjiUBCV68=',
+    # 'oauth_timestamp' => '1347698428',
+    # 'oauth_consumer_key' => '60dd96d4a2ad04888b09c9e18d82c26f',
+    # 'oauth_callback' => 'oob',
+    # 'oauth_nonce' => 'ba5de4a2344ffb60fe5dfc0ecd37ed31',
+    # 'oauth_version' => '1.0',
+    # 'oauth_signature_method' => 'HMAC-SHA1'
+#    warn Dumper(\%params);
+    return "oauth_callback_confirmed=true&oauth_token=1234567890abcdef1-1234567890abcdf1&oauth_token_secret=1234567890abcdef";
+};
+
+# now it lauches a browser 
+get '/services/oauth/authorize' => sub {
+#?oauth_token=1234567890abcdef1-1234567890abcdf1
+    return "OK";
+};
+
+
+#now you type the number in and it goes here :
+get '/services/oauth/access_token' => sub {
+#/services/oauth/access_token?oauth_nonce=841eceb0ae16de8af879f3b7480d4956&oauth_signature_method=HMAC-SHA1&oauth_version=1.0&oauth_callback=oob&oauth_timestamp=1347701942&oauth_consumer_key=60dd96d4a2ad04888b09c9e18d82c26f&oauth_verifier=1234&oauth_token=1234567890abcdef1-1234567890abcdf1&oauth_signature=czqYx1MG%2F%2FeVqoH6Chaz6Vcy%2BeY%3D
+    #return "OK";
+    return "oauth_token=1234567890abcdef1-1234567890abcdf1&oauth_token_secret=1234567890abcdef&username=whocares";
+};
+
+get '/services/rest' => sub {
+    my %params = params;
+    warn Dumper(\%params);
+    return "error" unless $params{"method"};
+    if ($params{"method"} eq "flickr.people.getUploadStatus") {       
+        return '<?xml version="1.0" encoding="UTF-8"?><rsp stat="ok">
+<user id="12037949754@N01" ispro="1">
+  <username>Bees</username>
+  <bandwidth maxbytes="2147483648" maxkb="2097152" usedbytes="383724" usedkb="374" remainingbytes="2147099924" remainingkb="2096777" />
+  <filesize maxbytes="10485760" maxkb="10240" />
+  <sets created="27" remaining="lots" />
+  <videos uploaded="5" remaining="lots" />
+</user>
+</rsp>';
+      #http://www.flickr.com/services/api/flickr.people.getUploadStatus.htm
+
+    }
+    else
+    {
+        warn "error";
+        return "error";
+    }
+    #method=
+#/services/rest?
+    #oauth_nonce=67d3411132a3a1fffafa20b700e25df9
+    #&oauth_signature_method=HMAC-SHA1
+#&oauth_version=1.0
+#&oauth_callback=oob
+#&oauth_timestamp=1347702192
+#&oauth_consumer_key=60dd96d4a2ad04888b09c9e18d82c26f
+#&method=flickr.people.getUploadStatus
+#&oauth_token=1234567890abcdef1-1234567890abcdf1
+#&oauth_signature=CZXynfUxFkwjYG0rDN%2F1hu4OdaU%3D
+};
+
+
+# now manage the upload
+post '/services/upload' => sub {
+#http://api.flickr.com/services/upload
+    my %body = params('body');
+    my $filename=$body{""};
+    my $all_uploads = request->uploads;    
+    foreach my $upload (values %{$all_uploads}) {
+        warn Dumper($upload);
+        $upload->copy_to('/tmp/images/');
+    }
+    return "OK";
+};
+
+# google search 
+#http://www.google.com/search
+use WWW::Search::Google;
+get '/search' => sub {
+    my $q = params->{q};
+
+    return "TODO:$q";
+};
+
 true;
