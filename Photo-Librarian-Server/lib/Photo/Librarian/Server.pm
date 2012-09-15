@@ -1,5 +1,6 @@
 package Photo::Librarian::Server;
 use Dancer ':syntax';
+use Data::Dumper;
 
 our $VERSION = '0.1';
 
@@ -7,6 +8,7 @@ get '/' => sub {
     template 'index';
 };
 
+# get is called first
 get '/restserver.php' => sub {
     #?access_token=
     return "Ok";
@@ -19,13 +21,16 @@ get '/connect/login_success.html' => sub {
 #https://www.facebook.com
 get '/dialog/oauth' => sub {
     my $redirect_uri= params->{'redirect_uri'};
-    warn "going to redirect to :" . $redirect_uri;
-    redirect $redirect_uri . "#access_token=this_is_a_faked_access_token";
-    #?client_id=
-    #&redirect_uri=
-    #&scope=offline_access,publish_stream,user_photos,user_videos
-    #&response_type=token
+    warn Dumper(params);
+    if ($redirect_uri) {
+        warn "going to redirect to :" . $redirect_uri;
+        redirect $redirect_uri . "#access_token=this_is_a_faked_access_token2&source=get";
+        #?client_id=
+        #&redirect_uri=
+        #&scope=offline_access,publish_stream,user_photos,user_videos
+        #&response_type=token
 #    return "Ok2";
+    };
 };
 
 #/plugins/facepile.php?%20%20%20%20%20%20%20%20%20%20%20%20app_id=49631911630&width=585&size=large&max_rows=1
@@ -33,7 +38,9 @@ get '/dialog/oauth' => sub {
 post '/restserver.php' => sub {
     my $token= params->{'access_token'};    #?access_token=this_is_a_faked_access_token
     warn "got the token $token";
-    return $token;
+    my $xml= "<root><user><name>somename</name></user></root>";
+    warn $xml;
+    return $xml;
 };
 
 #/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fmixcloud&width=300&height=258&colorscheme=light&show_faces=true&border_color=%23ffffff&stream=false&font=lucida+grande&header=false&appId=261490827272763

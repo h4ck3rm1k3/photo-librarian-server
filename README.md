@@ -15,3 +15,7 @@ For running in apache:
 # Facebook implementation
 
 The server when all the facebook requests are directed to it, handles more than just the photo handling, I have added in url handlers for all requests that occured while testing.
+
+The rest api is implemented, but this is deprecated:
+http://developers.facebook.com/docs/reference/rest/users.getInfo/
+an xml object is expected.
