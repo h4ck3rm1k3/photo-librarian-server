@@ -749,13 +749,27 @@ get "/images/*.*/upload/commons" => sub {
     try {
         $mw->{config}->{upload_url} = 'http://commons.wikimedia.org/wiki/Special:Upload';
 
-        if (0) {
-            $mw->api( {
-            action => 'upload',
-            filename => $pfile,
-            comment => 'a test image',
-            file => [$file],
-                      } );
+
+        if (1) {
+
+            
+            $mw->edit( 
+                {
+                    action => 'upload',
+                    filename => "TestPhotoLib" . $pfile,
+                    comment => 'MediaWiki::API Test suite - upload image',
+                    file => [ $file ],
+                    ignorewarnings => 1,
+                    bot => 1
+                } 
+                );
+
+            # $mw->api( {
+            # action => 'upload',
+            # filename => $pfile,
+            # comment => 'a test image',
+            # file => [$file],
+            #           } );
         }
         else
         {
