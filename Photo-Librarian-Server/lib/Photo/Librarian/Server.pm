@@ -512,4 +512,54 @@ get '/search' => sub {
     return "TODO:$q";
 };
 
+
+# digikam flikr api :
+
+#"POST /services/rest/?method=flickr.auth.getFrob&api_key=49d585bafa0758cb5c58ab67198bf632&api_sig=b025bddda699fc5ba4dd6fc55b9391c3 HTTP/1.1"
+post "/services/rest/" => sub {
+    warn Dumper(params);
+    my $method = params->{method};
+
+    if ($method eq "flickr.auth.getFrob") 
+    {
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+<frob>746563215463214621</frob>
+</rsp>';
+    } 
+    elsif ($method eq "flickr.auth.getToken") 
+    {
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok"><auth>
+  <token>976598454353455</token>
+  <perms>write</perms>
+  <user nsid="12037949754@N01" username="Bees" fullname="Cal H" />
+</auth></rsp>';
+        
+    }
+    else
+    {
+        warn "error unknown $method";
+    }
+
+};
+
+#the user goes to :
+#http://api.flickr.com/services/auth/?api_sig=333ac91b6f5cf45d0e5d51c2e4688da3&perms=write&api_key=8dcf37880da64acfe8e30bb1091376b7
+get "/services/auth/" => sub {
+    warn Dumper(params);
+    return "OK";
+    
+};
+
+
+# then it requests
+#'api_sig' => '7bf8bd3b0487a394595ce010f5e8aa59';
+# 'method' =>  'flickr.auth.getToken';
+#'api_key' => '8dcf37880da64acfe8e30bb1091376b7';
+# 'frob' => ""
+
+
+
+
 true;
