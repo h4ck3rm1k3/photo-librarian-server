@@ -891,4 +891,54 @@ post '/w/api.php' => sub {
     return $ret;
 };
 
+# s3cmd server
+put '/' => sub {
+    my %body = params('body');
+    warn Dumper(\%body);
+#    warn Dumper(request->params);
+    warn Dumper(request->body);
+    warn Dumper(request->path);
+    warn Dumper(request->env);
+
+#    warn Dumper(params);
+
+    my $ret="<ERR></ERR>";
+    warn $ret;
+    return $ret;
+};
+
+use Digest::MD5 qw(md5 md5_hex md5_base64);
+
+put '/*' => sub {
+
+    my ($file) = splat();
+    warn "Filename:". $file;
+    my %body = params('body');
+#   warn Dumper(\%body);
+    my $body =request->body;
+    warn "Body Len:" . length($body);
+    #warn Dumper(request->path);
+    #warn Dumper(request->env);
+
+#    my $digest = md5_base64($body);
+    my $digest = md5_hex($body);
+
+#    my $filename=$body{""};
+#    my $all_uploads = request->uploads;
+ #   warn Dumper($all_uploads);
+    warn "going to write ${datadir}${file}";
+    open OUT,">${datadir}${file}" or die;
+    print OUT $body;
+    close OUT;
+    
+    warn "going to add etag";
+#    Dancer::Response->header('Etag' => $digest); 
+    header('Etag' => $digest); 
+
+    warn "Digest $digest";
+    my $ret="<upload></upload>";
+    warn $ret;
+    return $ret;
+};
+
 true;
