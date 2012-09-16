@@ -63,9 +63,30 @@ http://localhost/images/jzFINxQxn7.jpg/upload/commons
 #details about one file
 http://localhost/images/jzFINxQxn7.jpg/details
 
-# upload to commons is failing :
+# upload to commons now working :
 http://localhost/images/jzFINxQxn7.jpg/upload/commons
 
+# the server can also accept images uploaded from the wikibot,
+supports the basic wikimedia api
+1. GET /w/api.php?maxlag=5&format=json&action=query&meta=userinfo
+   Returning {"query":{"userinfo":{"rights":["all","bot"],"groups":["sysop"],"name":"Mdupont"}}} 
+
+1. GET /w/api.php?maxlag=5&format=json&uiprop=rights%7Cgroups&action=query&meta=userinfo 
+   Returning {"query":{"userinfo":{"rights":["all","bot"],"groups":["sysop"],"name":"Mdupont"}}} 
+
+1. GET /w/api.php?prop=info&maxlag=5&format=json&titles=TestjzFINxQxn7.jpg&intoken=edit&action=query
+   Returning {"query":{"token":"yeahright!","pages":{"editoken":{"edittoken":"Funky1"}}}} 
+
+1. POST /w/api.php 
+   with a file, the body has these variable:   {
+         'maxlag' => '5',
+         'format' => 'json',
+         'comment' => '',
+         'filename' => 'TestjzFINxQxn7.jpg',
+         'action' => 'upload',
+         'file' => 'TestjzFINxQxn7.jpg',
+          'token' => 'Funky1'
+        };
 
 See also my blog post on the basic ideas :
 http://rdfintrospector2.blogspot.de/2012/09/more-ideas-from-my-kosovo-trip.html

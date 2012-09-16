@@ -609,7 +609,7 @@ get "/images" => sub {
     my @files=glob($datadir . "*.jpg");
     my $html = "<html>";
     foreach my $f (@files) {
-        
+        $f =~ s/^$datadir//; #strip off the datadir
         $html .= "<a href='/images/${f}/details'>${f}</a><p>";
     }
     $html .="</html>";
@@ -707,7 +707,10 @@ get "/images/*.*/details" => sub {
 
 
     if (-f $file) {
-        $html .= "<a href='/images/${filename}.${ext}/details'>${file}</a><p>";
+        $html .= "<a href='/images/${filename}.${ext}/upload/commons'>Upload ${file} to commons</a><p>";
+        $html .= "<a href='/images/${filename}.${ext}/upload/archive'>Upload ${file} to archive.org</a><p>";
+        #get "/images/*.*/upload/commons" => sub {
+
         $html .= EXIF $file;
         $html .= IPTC $file;
     }
@@ -721,6 +724,7 @@ get "/images/*.*/details" => sub {
 
 use MediaWiki::API;
 use YAML;
+use MediaWiki::Bot;
 
 get "/images/*.*/upload/commons" => sub {
     my ($filename,$ext)=splat; 
@@ -733,71 +737,22 @@ get "/images/*.*/upload/commons" => sub {
     return "error" if $filename =~ /\//;
     return "error" if $filename =~ /\./;
 
-    my $mw = MediaWiki::API->new();
-    $mw->{config}->{api_url} = 'http://commons.wikimedia.org/w/api.php';
-    $mw->login( 
-        { 
-            lgname => $cfg->{'username'}, 
-            lgpassword => $cfg->{'password'} 
-        } 
-        )
-        || die $mw->{error}->{code} . ': ' . $mw->{error}->{details};
-
-
-
-
- # upload a file to MediaWiki
-    try {
-        $mw->{config}->{upload_url} = 'http://commons.wikimedia.org/wiki/Special:Upload';
-
-
-        if (1) {
-
-            
-            $mw->edit( 
-                {
-                    action => 'upload',
-                    filename => "TestPhotoLib" . $pfile,
-                    comment => 'MediaWiki::API Test suite - upload image',
-                    file => [ $file ],
-                    ignorewarnings => 1,
-                    bot => 1
-                } 
-                );
-
-            # $mw->api( {
-            # action => 'upload',
-            # filename => $pfile,
-            # comment => 'a test image',
-            # file => [$file],
-            #           } );
-        }
-        else
-        {
-            open FILE, $file or die $!;
-            binmode FILE;
-            my ($buffer, $data);
-            while ( read(FILE, $buffer, 65536) )  {
-                $data .= $buffer;
-            }
-            close(FILE);
-            
-            $mw->upload( 
-                { 
-                    title => "TestPhotoLib" . $pfile,
-                    summary => 'This is test file',
-                    data => $data 
-                } 
-                ) || warn $mw->{error}->{code} . ': ' . $mw->{error}->{details};
-        }
-    } catch {
-        warn "error:". @_;
-    }
+    my $username = $cfg->{'username'};
+    my $password = $cfg->{'password'};
+    my $bot = MediaWiki::Bot->new({
+        agent   => "Photo::Librarian::Server::MediaWiki::Bot",
+        host    => 'commons.wikimedia.org',
+        login_data => { username => $username, password => $password },
+                                  });
+    
+    my $status = $bot->upload( {
+        title => "Test$pfile",
+        file => $file });
 
     my $html = "<html>";
-    $html .= "Test";
+    $html .= "Test status $status" ;
     $html .= "</html>";
-    
+        
     return $html;
 };
 
