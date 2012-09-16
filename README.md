@@ -88,6 +88,15 @@ supports the basic wikimedia api
           'token' => 'Funky1'
         };
 
+# support s3 api to post pictures
+
+1. create bucket is just a put /, no special response is expected by the s3 command, you need to have a hostname for the bucket.
+2. put file is a simple put the body contains the file, response is an Etag with the md5_hex
+
+only those two commands implemented.
+
+#
+
 See also my blog post on the basic ideas :
 http://rdfintrospector2.blogspot.de/2012/09/more-ideas-from-my-kosovo-trip.html
 
