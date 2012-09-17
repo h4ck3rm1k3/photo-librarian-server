@@ -95,7 +95,19 @@ supports the basic wikimedia api
 
 only those two commands implemented.
 
-#
+#piwigo support
+
+upload now working.
+1. "pwg.session.login"
+1. "pwg.session.getStatus"
+1. "pwg.categories.getList"
+1. 'pwg.categories.add optional 
+1. 'pwg.images.addSimple')
+
+
+
+
+
 
 See also my blog post on the basic ideas :
 http://rdfintrospector2.blogspot.de/2012/09/more-ideas-from-my-kosovo-trip.html
