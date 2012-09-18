@@ -1067,21 +1067,72 @@ post '/piwigocrash/ws.php' => sub {
     return "crash";
 };
 
-# gallery uploads
-#use http://localhost/gallery
-post '/gallery/main.php' => sub {
-    my %body = params('body');
-#  $VAR1 = {
-# 'g2_form[uname]' => 'fds',
-# 'g2_form[cmd]' => 'login',
-#            'g2_form[protocol_version]' => '2.5',
-#            'g2_controller' => 'remote:GalleryRemote',
-#            'g2_form[password]' => 'dsf'
-#          };
 
-    warn Dumper(\%body);
-    return "TODO";
+# gallery uploads
+
+#use http://localhost/gallery
+#gallery/gallery2/main.php
+#gallery2/modules/remote/GalleryRemote.inc
+	    # case 'add-item':
+	    # case 'album-properties':
+	    # case 'fetch-album-images':
+	    # case 'fetch-albums':
+	    # case 'fetch-albums-prune':
+	    # case 'image-properties':
+	    # case 'increment-view-count':
+	    # case 'login':
+	    # case 'new-album':
+	    # case 'no-op':
+
+sub gallery_status {
+
+    return "
+auth_token=TODO
+status=0
+status_text=SUCCESS
+server_version=2.7
+g2_authToken=TODO2
+";
+
 };
 
+post '/gallery/main.php' => sub {
+    my %body = params('body');
+# 'g2_form[uname]' => 'fds',
+# 'g2_form[cmd]' => 'login',
+# 'g2_form[protocol_version]' => '2.5',
+# 'g2_controller' => 'remote:GalleryRemote',
+# 'g2_form[password]' => 'dsf'
+
+    warn Dumper(\%body);
+#    return "TODO";
+    return gallery_status;
+};
+
+
+# from digikam
+# gallery/gallery-1.5.10/gallery_remote2.php
+
+post '/gallery/gallery_remote2.php' => sub {
+    my %body = params('body');
+#----------------------------------
+# default :
+#    'uname' => 'fs',
+#    'password' => 'sfds',
+#    'cmd' => 'login',
+#    'protocol_version' => '2.11'
+
+#----------------------------------
+# v2 :
+#   g2_form[uname]' => 'fs',
+#  'g2_form[cmd]' => 'login',
+#  'g2_form[protocol_version]' => '2.11',
+#  'g2_controller' => 'remote:GalleryRemote',
+#  'g2_form[password]' => 'sfds'
+  
+    warn Dumper(\%body);
+
+    return gallery_status;
+};
 
 true;
