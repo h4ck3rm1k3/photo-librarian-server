@@ -37,7 +37,7 @@ an xml object is expected.
 1. get '/services/rest'
 1. post '/services/upload'
 
-# picasaweb (broken)
+# picasaweb (broken in shotwell)
 The current stable version uses the deprecated interface
 
 1. user login https://www.google.com/accounts/ClientLogin
@@ -54,6 +54,22 @@ The new version uses the oauth2,
 1. post "/data/feed/api/user/*/albumid/*" upload the data.
 
         this fails here :https://github.com/h4ck3rm1k3/photo-librarian-server/issues/2
+
+## Picasaweb from digikam 
+1. digikam notices the certificate is bogus, good for you digikam. accept the cert.
+1. POST /accounts/ClientLogin
+1. GET /data/feed/api/user/
+The user default is optional and digicam leaves it out.
+1. GET /data/feed/api/user/brad.gushue 
+1. GET /data/feed/api/user/brad.gushue/albumid/9810315389720904593?thumbsize=200 
+One new call to a the get for the album before it posts
+1. POST /data/feed/api/user/brad.gushue/albumid/9810315389720904593 
+the post fails with the boundry just like before. 
+
+Bug has been reported to the perl module author.
+https://rt.cpan.org/Public/Bug/Display.html?id=79697
+
+
 
 # flicker from digikam is working
 
