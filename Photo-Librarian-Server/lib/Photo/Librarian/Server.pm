@@ -165,14 +165,37 @@ post '/restserver.php' => sub {
 
         
     }
+    elsif($body{"method"} eq "facebook.auth.createToken")
+    {
+        # 'sig' => '82820437f8e5e9724efd182ecf84ce3f',
+        # 'format' => 'xml',
+        # 'v' => '1.0',
+        # 'method' => 'facebook.auth.createToken',
+        # 'api_key' => '9651bda0451d14850a75fa95666d1a0e'
+        return "<ok></ok>";
+    }
     else 
     {
         warn "error";
+        warn Dumper(\%body);
         return "ERROR";
     }
     
 };
 
+get '/pull' => sub {
+    # pull updates
+};
+
+# get the channle 
+post '/ajax/presence/update.php'  => sub {
+    return "";
+};
+
+# the basic photo uploader:
+get '/media/upload/photos/simple' => sub {
+    return "<html>facebook photo uploader</html>";
+};
 
 get '/css/error.css' => sub {
     return "";
@@ -180,11 +203,11 @@ get '/css/error.css' => sub {
 
 # other facebook api calls
 
-get '/method' => sub {
+get '/method' => sub {#facebook
     return "";
 };
 
-get '/dialog/feed' => sub {
+get '/dialog/feed' => sub { #facebook
     return "";
 #https://www.facebook.com/dialog/feed?
 #api_key=
@@ -201,13 +224,23 @@ get '/dialog/feed' => sub {
 
 };
 
-get '/connect/xd_arbiter.php' => sub {
-    return "";
+get '/connect/xd_arbiter.php' => sub { #facebook
+    return "<html>Hello</html>";
 };
 
 #/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fmixcloud&width=300&height=258&colorscheme=light&show_faces=true&border_color=%23ffffff&stream=false&font=lucida+grande&header=false&appId=261490827272763
-get '/plugins/like.php' => sub {
+get '/plugins/like.php' => sub { #facebook
     return "WTF";
+};
+
+#http://www.facebook.com/plugins/login_button.php
+get '/plugins/login_button.php' => sub { #facebook
+    return "<html>Login from your plugin</html>";
+};
+
+#http://www.facebook.com/login.php??&popup&api_key=9651bda0451d14850a75fa95666d1a0e&auth_token=null
+get '/login.php' => sub { #facebook
+    return "<html>Login to facebook</html>";
 };
 
 

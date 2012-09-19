@@ -14,7 +14,7 @@ my $gr = Gallery::Remote->new(URL => "http://localhost/gallery/",
 $gr->login();
 # print "done logging in, fetching albums\n";
 
-# my $album_data = $gr->fetch_albums_prune();
+my $album_data = $gr->fetch_albums_prune();
 
 # if ($album_data) {
 #     print "Albums found: " . scalar(@$album_data) . "\n";
