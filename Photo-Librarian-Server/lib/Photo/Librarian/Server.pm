@@ -277,12 +277,8 @@ get '/services/oauth/access_token' => sub {
     return "oauth_token=1234567890abcdef1-1234567890abcdf1&oauth_token_secret=1234567890abcdef&username=whocares";
 };
 
-get '/services/rest' => sub {
-    my %params = params;
-    warn Dumper(\%params);
-    return "error" unless $params{"method"};
-    if ($params{"method"} eq "flickr.people.getUploadStatus") {       
-        return '<?xml version="1.0" encoding="UTF-8"?><rsp stat="ok">
+sub flickr_people_getUploadStatus {
+    return '<?xml version="1.0" encoding="UTF-8"?><rsp stat="ok">
 <user id="12037949754@N01" ispro="1">
   <username>Bees</username>
   <bandwidth maxbytes="2147483648" maxkb="2097152" usedbytes="383724" usedkb="374" remainingbytes="2147099924" remainingkb="2096777" />
@@ -291,11 +287,16 @@ get '/services/rest' => sub {
   <videos uploaded="5" remaining="lots" />
 </user>
 </rsp>';
-      #http://www.flickr.com/services/api/flickr.people.getUploadStatus.htm
+    #http://www.flickr.com/services/api/flickr.people.getUploadStatus.htm
+}
 
-    }
-    else
-    {
+get '/services/rest' => sub {
+    my %params = params;
+    warn Dumper(\%params);
+    return "error" unless $params{"method"};
+    if ($params{"method"} eq "flickr.people.getUploadStatus") {       
+        return flickr_people_getUploadStatus();
+    } else    {
         warn "error";
         return "error";
     }
@@ -325,6 +326,109 @@ post '/services/upload' => sub {
     }
     return "OK";
 };
+
+# digikam flikr api :
+
+#"POST /services/rest/?method=flickr.auth.getFrob&api_key=49d585bafa0758cb5c58ab67198bf632&api_sig=b025bddda699fc5ba4dd6fc55b9391c3 HTTP/1.1"
+post "/services/rest/" => sub {
+    my %p=params;
+    warn Dumper(\%p);
+    my $method = params->{method};
+
+    if ($method eq "flickr.auth.getFrob") 
+    {
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+<frob>746563215463214621</frob>
+</rsp>';
+    } 
+    elsif ($method eq "flickr.auth.getToken") 
+    {
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+<auth>
+  <token>976598454353455</token>
+  <perms>write</perms>
+  <user nsid="12037949754@N01" username="Bees" fullname="Cal H" />
+</auth>
+</rsp>
+';
+        
+    }
+    elsif ($method eq "flickr.photosets.getList") 
+    {
+        #http://www.flickr.com/services/api/flickr.photosets.getList.html
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+        <photosets page="1" pages="1" perpage="30" total="2" cancreate="1">
+  <photoset id="72157626216528324" primary="5504567858" secret="017804c585" server="5174" farm="6" photos="22" videos="0" count_views="137" count_comments="0" can_comment="1" date_create="1299514498" date_update="1300335009">
+    <title>Avis Blanche</title>
+    <description>My Grandmas Recipe File.</description>
+  </photoset>
+  <photoset id="72157624618609504" primary="4847770787" secret="6abd09a292" server="4153" farm="5" photos="43" videos="12" count_views="523" count_comments="1" can_comment="1" date_create="1280530593" date_update="1308091378">
+    <title>Mah Kittehs</title>
+    <description>Sixty and Niner. Born on the 3rd of May, 2010, or thereabouts. Came to my place on Thursday, July 29, 2010.</description>
+  </photoset>
+</photosets>
+</rsp>
+';
+
+    }
+    elsif ($method eq 'flickr.people.getUploadStatus' )  {
+#flickr.people.getUploadStatus at /home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/lib/Photo/Librarian/Server.pm line 586.
+# 'api_sig'; '91d30d16cccfec1655dbb7bf19382a6d';
+# 'api_key'; 'c6b39ee183385d9ce4ea188f85945016';
+# 'perms'  'write';
+# 'frob'  '746563215463214621';
+        return flickr_people_getUploadStatus();
+    }
+    else
+    {
+        warn "error unknown $method";
+    }
+
+};
+
+#the user goes to :
+#http://api.flickr.com/services/auth/?api_sig=333ac91b6f5cf45d0e5d51c2e4688da3&perms=write&api_key=8dcf37880da64acfe8e30bb1091376b7
+get "/services/auth/" => sub {
+    warn Dumper(params);
+    return "OK";
+    
+};
+
+post '/services/upload/' => sub {
+    my %body = params('body');
+    my $filename=$body{""};
+    my $all_uploads = request->uploads;
+    
+    foreach my $upload (values %{$all_uploads}) {
+        warn Dumper($upload);
+        $upload->copy_to($datadir);
+    }
+
+    return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+    <photoid>1234</photoid>
+</rsp>';
+    
+};
+
+
+# then it requests
+#'api_sig' => '7bf8bd3b0487a394595ce010f5e8aa59';
+# 'method' =>  'flickr.auth.getToken';
+#'api_key' => '8dcf37880da64acfe8e30bb1091376b7';
+# 'frob' => ""
+
+#
+
+
+################
+
+
+
+
 
 # now handle the google picasaweb
 
@@ -535,90 +639,6 @@ get '/search' => sub {
 };
 
 
-# digikam flikr api :
-
-#"POST /services/rest/?method=flickr.auth.getFrob&api_key=49d585bafa0758cb5c58ab67198bf632&api_sig=b025bddda699fc5ba4dd6fc55b9391c3 HTTP/1.1"
-post "/services/rest/" => sub {
-    warn Dumper(params);
-    my $method = params->{method};
-
-    if ($method eq "flickr.auth.getFrob") 
-    {
-        return '<?xml version="1.0" encoding="UTF-8"?>
-<rsp stat="ok">
-<frob>746563215463214621</frob>
-</rsp>';
-    } 
-    elsif ($method eq "flickr.auth.getToken") 
-    {
-        return '<?xml version="1.0" encoding="UTF-8"?>
-<rsp stat="ok">
-<auth>
-  <token>976598454353455</token>
-  <perms>write</perms>
-  <user nsid="12037949754@N01" username="Bees" fullname="Cal H" />
-</auth>
-</rsp>
-';
-        
-    }
-    elsif ($method eq "flickr.photosets.getList") 
-    {
-        #http://www.flickr.com/services/api/flickr.photosets.getList.html
-        return '<?xml version="1.0" encoding="UTF-8"?>
-<rsp stat="ok">
-        <photosets page="1" pages="1" perpage="30" total="2" cancreate="1">
-  <photoset id="72157626216528324" primary="5504567858" secret="017804c585" server="5174" farm="6" photos="22" videos="0" count_views="137" count_comments="0" can_comment="1" date_create="1299514498" date_update="1300335009">
-    <title>Avis Blanche</title>
-    <description>My Grandmas Recipe File.</description>
-  </photoset>
-  <photoset id="72157624618609504" primary="4847770787" secret="6abd09a292" server="4153" farm="5" photos="43" videos="12" count_views="523" count_comments="1" can_comment="1" date_create="1280530593" date_update="1308091378">
-    <title>Mah Kittehs</title>
-    <description>Sixty and Niner. Born on the 3rd of May, 2010, or thereabouts. Came to my place on Thursday, July 29, 2010.</description>
-  </photoset>
-</photosets>
-</rsp>
-';
-
-    }
-    else
-    {
-        warn "error unknown $method";
-    }
-
-};
-
-#the user goes to :
-#http://api.flickr.com/services/auth/?api_sig=333ac91b6f5cf45d0e5d51c2e4688da3&perms=write&api_key=8dcf37880da64acfe8e30bb1091376b7
-get "/services/auth/" => sub {
-    warn Dumper(params);
-    return "OK";
-    
-};
-
-post '/services/upload/' => sub {
-    my %body = params('body');
-    my $filename=$body{""};
-    my $all_uploads = request->uploads;
-    
-    foreach my $upload (values %{$all_uploads}) {
-        warn Dumper($upload);
-        $upload->copy_to($datadir);
-    }
-
-    return '<?xml version="1.0" encoding="UTF-8"?>
-<rsp stat="ok">
-    <photoid>1234</photoid>
-</rsp>';
-    
-};
-
-
-# then it requests
-#'api_sig' => '7bf8bd3b0487a394595ce010f5e8aa59';
-# 'method' =>  'flickr.auth.getToken';
-#'api_key' => '8dcf37880da64acfe8e30bb1091376b7';
-# 'frob' => ""
 
 
 ## now lets process the stuff
