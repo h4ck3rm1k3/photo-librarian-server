@@ -382,6 +382,28 @@ post "/services/rest/" => sub {
 # 'frob'  '746563215463214621';
         return flickr_people_getUploadStatus();
     }
+    # from f-spot
+    elsif ($method eq 'flickr.auth.checkToken') {
+
+#'api_sig' => 'ce189e5307a62c549014781a5bffa36a',
+#'auth_token' => '976598454353455',
+#'method' => 'flickr.auth.checkToken',
+#'api_key' => 'c6b39ee183385d9ce4ea188f85945016'
+        
+#        return '<auth><token>976598454353455</token><perms>read</perms>'; 
+        return '<?xml version="1.0" encoding="UTF-8"?>
+<rsp stat="ok">
+<auth>
+  <token>976598454353455</token>
+  <perms>write</perms>
+  <user nsid="12037949754@N01" username="Bees" fullname="Cal H" />
+</auth>
+</rsp>
+';
+      #see     : http://hanklords.github.com/flickraw/FlickRaw/Flickr/Auth.html
+      #see also: http://acme.com/flickr/authmap.html2
+      #see also: http://www.flickr.com/services/api/flickr.auth.oauth.checkToken.html
+    }
     else
     {
         warn "error unknown $method";
