@@ -6,7 +6,7 @@ use YAML;
 use MediaWiki::Bot;
 
 my $datadir="/home/mdupont/experiments/photo/";
-my ($filename,$ext)=("jzFINxQxn7","jpg");
+my ($filename,$ext)=("test","jpg");
 my $cfile="/home/mdupont/experiments/photo/photo-librarian-server/Photo-Librarian-Server/commons.yml";
 my $cfg = YAML::LoadFile($cfile);
 my $pfile= $filename . ".". $ext;

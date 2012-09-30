@@ -3,11 +3,11 @@ use Dancer ':syntax';
 use Data::Dumper;
 
 use Photo::Librarian::Server::Piwigo;
+use Photo::Librarian::Server::Mediawiki; # mediawiki server api
+use Photo::Librarian::Server::Mediawiki::Upload; # handle uploading to commons
 
 our $VERSION = '0.1';
 our $datadir= "/tmp/images/";
-our $lastuser="Mdupont";
-
 
 if (!-d $datadir)
 {
@@ -797,174 +797,6 @@ get "/images/*.*/details" => sub {
     return $html;
 };
 
-use MediaWiki::API;
-use YAML;
-use MediaWiki::Bot;
-
-get "/images/*.*/upload/commons" => sub {
-    my ($filename,$ext)=splat; 
-    #warn config->{appdir};
-    my $cfile=config->{appdir} . "/commons.yml";
-    my $cfg = YAML::LoadFile($cfile);
-
-    my $pfile= $filename . ".". $ext;
-    my $file=$datadir . $pfile;
-    return "error" if $filename =~ /\//;
-    return "error" if $filename =~ /\./;
-
-    my $username = $cfg->{'username'};
-    my $password = $cfg->{'password'};
-    my $bot = MediaWiki::Bot->new({
-        agent   => "Photo::Librarian::Server::MediaWiki::Bot",
-        host    => 'commons.wikimedia.org',
-        login_data => { username => $username, password => $password },
-                                  });
-    
-    my $status = $bot->upload( {
-        title => "Test$pfile",
-        file => $file });
-
-    my $html = "<html>";
-    $html .= "Test status $status" ;
-    $html .= "</html>";
-        
-    return $html;
-};
-
-# handle bot logins t mediawiki
-get '/w/api.php' => sub {
-    my $format= params->{'format'};
-    my $action= params->{'action'};
-    my $intoken= params->{'intoken'};
-
-    my $ret="BOO";
-
-#/w/api.php?maxlag=5&format=json&action=query&meta=userinfo
-    if ($format eq 'json')
-    {
-        if ($action eq "query")
-        {
-
-#    intoken=edit
-            if (($intoken ) && ($intoken eq "edit")) {
-                $ret= to_json({
-                    query => {
-                        token =>"yeahright!",
-                        pages => {
-                            editoken => { 
-                                edittoken => "Funky1"
-                            }
-                        },
-                        ,
-                    }
-                               }
-                    );
-            } else {
-                $ret= to_json(
-                    {
-                        query => {
-                            userinfo => {
-                                name => $lastuser,
-                                rights => [ "all", "bot"],
-                                groups => [ "sysop"]
-                            }
-                        }
-                    }
-                    );
-            }
-        }
-        else
-        {
-            $ret= to_json({});
-        }
-    }
-
-    warn "Returning $ret";
-    return $ret;
-};
-
-#0 post login
-#1 get the user info 
-#GET /w/api.php?maxlag=5&format=json&uiprop=rights%7Cgroups&action=query&meta=userinfo HTTP/1.1"
-#2 get a token
-# /w/api.php?prop=info&maxlag=5&format=json&titles=TestjzFINxQxn7.jpg&intoken=edit&action=query 
-
-
-
-post '/w/api.php' => sub {
-    my %body = params('body');
-    warn Dumper(\%body);
-    my $ret="";
-# {
-#     'maxlag' => '5',
-#     'format' => 'json',
-#     'action' => 'login',
-#     'lgdomain' => '',
-#     'lgpassword' => 'PWD',
-#     'lgname' => 'UID'
-# };
-
-    my $format= $body{'format'};
-    my $action= $body{'action'};
-    my $token= $body{'lgtoken'};
-    my $username=$body{'lgname'};
-
-    $lastuser=$username;
-
-    if ($format eq 'json')
-    {
-        if ($action eq 'login')
-        {
-            if (!$token)
-            {
-                $ret= to_json(
-                    {
-                        login => {
-                            result => 'NeedToken',
-                            token => 'funky2',
-                        }
-                    }
-                    );
-            }
-            else
-            {
-                $ret= to_json(
-                    {
-                        login => {
-                            result => 'Success',
-                            lgusername => $username,
-                        }
-                    }
-                    );
-            }
-        }
-        elsif ($action eq 'upload')  {
-# post the image
-        # 'maxlag' => '5',
-        # 'format' => 'json',
-        # 'comment' => '',
-        # 'filename' => 'TestjzFINxQxn7.jpg',
-        # 'action' => 'upload',
-        # 'file' => 'TestjzFINxQxn7.jpg',
-        # 'token' => 'Funky1'
-
-            my $filename=$body{""};
-            my $all_uploads = request->uploads;
-            
-            foreach my $upload (values %{$all_uploads}) {
-                warn Dumper($upload);
-                $upload->copy_to($datadir);
-            }
-            $ret =to_json(             {} );
-        }
-        else
-        {
-            warn "error";
-        }
-    }
-    warn $ret;
-    return $ret;
-};
 
 # s3cmd server
 put '/' => sub {
